@@ -8,6 +8,7 @@ import MovieScreen from '../screens/MovieScreen';
 import PersonScreen from '../screens/PersonScreen';
 import SearchScreen from '../screens/SearchScreen'
 
+
 const Stack = createNativeStackNavigator();
 
 const AppNavigation = () => {

@@ -2,12 +2,14 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'rea
 import React from 'react'
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
+import { fallbackMoviePoster, image342 } from '../api/moviedb';
 
 var { width, height } = Dimensions.get('window')
 
-const MovieList = ({ data, title, image, hideSeeall }) => {
+const MovieList = ({ data, title, hideSeeall }) => {
     let movieName = 'ThorLoveandThunder';
     const navigation = useNavigation();
+
     return (
         <View style={styles.Container}>
             <View style={styles.List}>
@@ -23,14 +25,14 @@ const MovieList = ({ data, title, image, hideSeeall }) => {
                 horizontal={true}
             >
                 {
-                    data.map((item, index) => {
+                    Array.isArray(data) && data.map((item, index) => {
                         return (
                             <TouchableWithoutFeedback
                                 key={index}
                                 onPress={() => navigation.push('Movie', item)}>
                                 <View style={styles.movies}>
                                     <Image
-                                        source={image}
+                                        source={{ uri: image342(item.poster_path) }}
                                         style={{
                                             height: height * 0.25,
                                             width: width * 0.34,
@@ -38,11 +40,9 @@ const MovieList = ({ data, title, image, hideSeeall }) => {
                                         }}
                                     />
                                     <Text style={styles.movieTitle}>{
-                                        movieName.length > 16 ? movieName.slice(0, 16) + "..." : movieName
+                                        item?.title?.length > 16 ? item.title.slice(0, 16) + "..." : item.title
                                     }</Text>
-
                                 </View>
-
                             </TouchableWithoutFeedback>
 
                         )
@@ -77,7 +77,6 @@ const styles = StyleSheet.create({
     },
     movies: {
         justifyContent: 'space-between',
-        marginRight: 2,
         marginTop: 10,
         marginRight: 10
     },

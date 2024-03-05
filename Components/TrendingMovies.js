@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableWithoutFeedback, Dimensions, Image } f
 import React from 'react'
 import Carousel from 'react-native-snap-carousel'
 import { useNavigation } from '@react-navigation/native';
+import { image500 } from '../api/moviedb';
 
 var { width, height } = Dimensions.get('window');
 
@@ -19,7 +20,7 @@ const TrendingMovies = ({ data }) => {
                 firstItem={1}
                 inactiveSlideOpacity={0.60}
                 sliderWidth={width}
-                itemWidth={width * 0.5}
+                itemWidth={width * 0.7}
                 slideStyle={{ display: 'flex', alignItems: 'center' }}
             />
         </View>
@@ -32,10 +33,11 @@ const MovieCard = ({ item, handleClick }) => {
         <TouchableWithoutFeedback onPress={() => handleClick(item)}>
             <View style={styles.Carousel}>
                 <Image
-                    source={require('../assets/movieposter2.jpeg')}
+                    //source={require('../assets/movieposter2.jpeg')}
+                    source={{ uri: image500(item.poster_path) }}
                     style={[{
-                        height: height * 0.4,
-                        width: width * 0.5,
+                        height: height * 0.5,
+                        width: width * 0.7,
                         borderRadius: 20,
                         overflow: 'hidden'
                     }]} />

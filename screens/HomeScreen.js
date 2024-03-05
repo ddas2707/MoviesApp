@@ -10,20 +10,42 @@ import MovieList from '../Components/MovieList';
 import SearchScreen from './SearchScreen';
 import { useNavigation } from '@react-navigation/native';
 import Loading from '../Components/Loading';
+import { fetchTopratedMovies, fetchTrendingMovies, fetchUpcomingMovies } from '../api/moviedb';
 
-const ios = Platform.OS == 'ios';
+
 const HomeScreen = () => {
-    const [trending, setTrending] = useState([1, 2, 3])
+    const [trending, setTrending] = useState([])
     const [upcoming, setUpcoming] = useState([1, 2, 3, 4, 5, 6])
     const [topRated, setTopRated] = useState([1, 2, 3])
     const [loading, setLoading] = useState(true)
 
+    // useEffect(() => {
+    //     const timer = setTimeout(() => {
+    //         setLoading(false); // Set showLoader to false after 2000 milliseconds (2 seconds)
+    //     }, 2000); // Change 2000 to the desired delay in milliseconds
+    //     return () => clearTimeout(timer); // Clear the timer when the component unmounts or rerenders
+    // }, []); // This effect runs only once when the component mounts
+
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setLoading(false); // Set showLoader to false after 2000 milliseconds (2 seconds)
-        }, 2000); // Change 2000 to the desired delay in milliseconds
-        return () => clearTimeout(timer); // Clear the timer when the component unmounts or rerenders
-    }, []); // This effect runs only once when the component mounts
+        getTrendingMovies();
+        getUpComingMovies();
+        getTopRatedMovies();
+    }, [])
+
+    const getTrendingMovies = async () => {
+        const data = await fetchTrendingMovies();
+        if (data && data.results) setTrending(data.results)
+        setLoading(false)
+    }
+    const getUpComingMovies = async () => {
+        const data = await fetchUpcomingMovies();
+        if (data && data.results) setUpcoming(data.results)
+    }
+    const getTopRatedMovies = async () => {
+        const data = await fetchTopratedMovies();
+        if (data && data.results) setTopRated(data.results)
+        setLoading(false)
+    }
 
     const navigation = useNavigation();
 
@@ -44,6 +66,9 @@ const HomeScreen = () => {
                         <TouchableOpacity onPress={() => navigation.navigate('Search')}>
                             <MagnifyingGlassIcon size="30" strokeWidth={2} color="white" />
                         </TouchableOpacity>
+                        {/* <TouchableOpacity onPress={() => navigation.navigate('Trial')}>
+                            <MagnifyingGlassIcon size="30" strokeWidth={2} color="white" />
+                        </TouchableOpacity> */}
                     </View>
                 </SafeAreaView>
                 {loading ? <Loading /> : <ScrollView
@@ -51,9 +76,9 @@ const HomeScreen = () => {
                     contentContainerStyle={{ paddingBottom: 10 }}
                 >
 
-                    <TrendingMovies data={trending} />
-                    <MovieList title="UpComing" data={upcoming} hideSeeall={true} image={require('../assets/movieposter3.jpeg')} />
-                    <MovieList title="TopRated" data={topRated} hideSeeall={true} image={require('../assets/movieposter4.jpeg')} />
+                    {trending.length > 0 && <TrendingMovies data={trending} />}
+                    <MovieList title="UpComing" data={upcoming} hideSeeall={true} />
+                    <MovieList title="TopRated" data={topRated} hideSeeall={true} />
                 </ScrollView>}
 
             </View>

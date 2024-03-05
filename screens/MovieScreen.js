@@ -7,6 +7,7 @@ import { HeartIcon as Heart } from 'react-native-heroicons/solid'
 import LinearGradient from 'react-native-linear-gradient';
 import Cast from '../Components/Cast';
 import MovieList from '../Components/MovieList';
+import { fetchMovieCredits, fetchMovieDetails, fetchSimilarMovies, image500 } from '../api/moviedb';
 
 
 const { width, height } = Dimensions.get('window');
@@ -16,8 +17,11 @@ const MovieScreen = () => {
     let movieName = "Avengers : EndGame";
 
     const [liked, setLiked] = useState(false);
-    const [cast, setCast] = useState([1, 2, 3, 4, 5, 6, 7])
+    const [cast, setCast] = useState([])
+    const [loading, setLoading] = useState(false)
+    const [movies, setMovies] = useState({})
     const [similarMovies, setSimilarMovies] = useState([1, 2, 3, 4, 5, 6, 7])
+
 
     const toggleLiked = (e) => {
         e.preventDefault()
@@ -26,7 +30,30 @@ const MovieScreen = () => {
 
     useEffect(() => {
         //movie api to be fetched here
+        //console.log(item.id)
+        setLoading(true)
+        getMovieDetails(item.id)
+        getMovieCredits(item.id)
+        getSimilarMovies(item.id)
     }, [item])
+
+    const getMovieDetails = async (id) => {
+        const data = await fetchMovieDetails(id)
+        //console.log('get movie details', data.id)
+        if (data) setMovies(data)
+        setLoading(false)
+    }
+    const getMovieCredits = async (id) => {
+        const data = await fetchMovieCredits(id)
+        //console.log('get movies details', data)
+        if (data && data.cast) setCast(data.cast)
+    }
+    const getSimilarMovies = async (id) => {
+        const data = await fetchSimilarMovies(id)
+        //console.log('show similar movies ', data)
+        if (data && data.results) setSimilarMovies(data.results)
+    }
+
     return (
         <GestureHandlerRootView>
             <ScrollView
@@ -46,8 +73,8 @@ const MovieScreen = () => {
                     </SafeAreaView>
                     <View>
                         <Image
-                            source={require('../assets/movieposter2.jpeg')}
-                            style={{ width: width, height: height * 0.55, borderRadius: 50 }}
+                            source={{ uri: image500(movies?.poster_path) }}
+                            style={{ width: '100%', height: height * 0.55, borderRadius: 50 }}
                         />
                         <LinearGradient
                             colors={['transparent', 'rgba(23,23,23,0.4)', 'rgba(23,23,23,1)']}
@@ -58,10 +85,13 @@ const MovieScreen = () => {
                     </View>
                     <View style={styles.description}>
                         {/*Name of the movie and its one liner description*/}
-                        <Text style={styles.title}>{movieName}</Text>
-                        <Text style={styles.details}>
-                            Realeased  •  2020  •  3hr
-                        </Text>
+                        <Text style={styles.title}>{
+                            movies?.title
+                        }</Text>
+                        {movies?.id ? <Text style={styles.details}>
+                            {movies?.status}  •  {movies?.release_date?.split('-')[0]}  •  {movies?.runtime}m
+                        </Text> : null}
+
                     </View>
                     <View style={styles.genre}>
                         <Text style={styles.genreDesc}>Action  •</Text>
@@ -69,19 +99,12 @@ const MovieScreen = () => {
                         <Text style={styles.genreDesc}>ScienceFiction</Text>
                     </View>
                     <Text style={styles.about}>
-                        Et sed etiam penatibus. Sapien erat aliquam vulputate sodales rhoncus.
-                        Sollicitudin quisque, penatibus nibh nec. Eros placerat mus magnis platea
-                        viverra volutpat! Euismod lacus metus adipiscing torquent per maecenas lo
-                        bortis eget enim class! Sociosqu netus adipiscing etiam justo cursus elit
-                        faucibus erat gravida senectus interdum primis. Quam justo sagittis inter
-                        dum mollis imperdiet sociosqu mollis nam ultrices aliquet tempor nullam.
-                        Felis mollis dignissim hac metus phasellus quis nibh sit vestibulum ac!
-                        Lorem commodo enim tristique ipsum nisi condimentum rhoncus lacus risus!
+                        {movies?.overview}
                     </Text>
                 </View>
                 {/* Cast Component here  */}
-                <Cast cast={cast} navigation={navigation} />
-                <MovieList title="Also Played In" data={similarMovies} hideSeeall={true} image={require('../assets/movieposter3.jpeg')} />
+                {cast.length > 0 && <Cast cast={cast} navigation={navigation} />}
+                {similarMovies.length > 0 && <MovieList title="Also Played In" data={similarMovies} hideSeeall={true} />}
             </ScrollView>
         </GestureHandlerRootView>
     )
@@ -123,7 +146,7 @@ const styles = StyleSheet.create({
 
     },
     title: {
-        fontSize: 30,
+        fontSize: 40,
         fontWeight: 'bold',
         fontFamily: 'Montserrat_400Regular',
         marginBottom: 7,

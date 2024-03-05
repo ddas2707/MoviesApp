@@ -3,6 +3,7 @@ import React from 'react'
 import { ScrollView } from 'react-native-gesture-handler'
 import { useNavigation } from '@react-navigation/native'
 import PersonScreen from '../screens/PersonScreen'
+import { image185 } from '../api/moviedb'
 
 
 const Cast = ({ cast, navigation }) => {
@@ -15,10 +16,10 @@ const Cast = ({ cast, navigation }) => {
                 contentContainerStyle={{ paddingHorizontal: 15 }}
                 horizontal={true}
             >
-                {cast.map((item, index) => {
+                {Array.isArray(cast) && cast.map((person, index) => {
                     return (
-                        <TouchableOpacity key={index} onPress={() => navigation.navigate('Person', PersonScreen)}>
-                            <RoundImageCard name={name} />
+                        <TouchableOpacity key={index} onPress={() => navigation.navigate('Person', person)}>
+                            <RoundImageCard person={person} />
                         </TouchableOpacity>
                     )
                 })}
@@ -28,12 +29,12 @@ const Cast = ({ cast, navigation }) => {
 }
 export default Cast;
 
-const RoundImageCard = ({ name }) => {
+const RoundImageCard = ({ person }) => {
     return (
         <View style={styles.card}>
-            <Image source={require('../assets/moviestar1.webp')} style={styles.image} />
+            <Image source={{ uri: image185(person?.profile_path) }} style={styles.image} />
             <Text style={styles.name}>{
-                name.length > 10 ? (name.slice(0, 10) + "...") : name
+                person?.name?.length > 10 ? (person?.name?.slice(0, 10) + "...") : person?.name
             }</Text>
         </View>
     );
